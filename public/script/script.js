@@ -18,7 +18,7 @@ let panierCount = 0 // va être le compteur du panier
 // fonction permettant de créer une card à l'aide d'un objet contenant des infos : img, prix, etc ...
 function createCard(myObject) {
     fashion.insertAdjacentHTML('beforeend', `
-    <div class="card my-2 col-lg-3 col-10 mx-2" >
+    <div class="card my-2 col-lg-3 col-10 mx-2" id="${myObject.id}">
         <div id="carousel-${myObject.id}" class="carousel carousel-dark slide" data-bs-ride="carousel" >
             <div class="carousel-inner">
                 <div class="carousel-item active" data-bs-interval="10000">
@@ -56,42 +56,13 @@ fetch('public/data/dress.json')
         for (let index in data.results) {
             // nous poussons les éléments dans un tableau pour le manipuler par la suite
             allArticlesArray.push(data.results[index])
-            // utilisation de insertAdjacentHTML pour ne pas perdre les events et pour afficher tous les articles du json
-            fashion.insertAdjacentHTML('beforeend', `
-                <div class="card my-2 col-lg-3 col-10 mx-2" >
-                    <div id="carousel-${data.results[index].id}" class="carousel carousel-dark slide" data-bs-ride="carousel" >
-                        <div class="carousel-inner">
-                            <div class="carousel-item active" data-bs-interval="10000">
-                            <img style="width:100%" src="public/img/${data.results[index].imgs[0]}" alt="vue vêtement de face">
-                            </div>
-                            <div class="carousel-item" data-bs-interval="2000">
-                            <img style="width:100%" src="public/img/${data.results[index].imgs[1]}" alt="vue vêtement de dos">
-                            </div>
-                        </div>
-                        <button class="carousel-control-prev" type="button" data-bs-target="#carousel-${data.results[index].id}" data-bs-slide="prev">
-                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                            <span class="visually-hidden">Previous</span>
-                        </button>
-                        <button class="carousel-control-next" type="button" data-bs-target="#carousel-${data.results[index].id}" data-bs-slide="next">
-                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                            <span class="visually-hidden">Next</span>
-                        </button>
-                    </div>
-                    <div class="card-body">
-                        <p class="txtSize">${data.results[index].name}</p>
-                        <div class="d-flex  justify-content-between align-items-center ">
-                            <div class="fw-bold">${data.results[index].price}€</div>
-                            <button id="${data.results[index].id}-btn" class="btn p-2 smoll-text" onclick="addToCart('${data.results[index].id}')">Ajouter au panier</button>
-                        </div>
-                    </div>
-                </div>
-            `)
+            // Nous utilisons notre fonction createCard pour insérer nos articles
+            createCard(data.results[index])
         } // de la boucle for in
     }) // fin du then data
 
 
 // la fonction va remplir un tableau myCartArray contenent toutes les propriétés de l'article, puis l'affichera ou augmentera la quantité dans la modal du panier
-
 function addToCart(articleRef) {
 
     console.log(myCartArray)
@@ -101,6 +72,7 @@ function addToCart(articleRef) {
 
     // si absent, on pousse l'item dans le tableau à l'aide de .push()
     if (index === false) {
+        // on récupère l'indexArticle à l'aide de notre fonction
         let indexArticle = getItemIndex(allArticlesArray, articleRef)
         myCartArray.push(allArticlesArray[indexArticle])
     } else {
@@ -124,7 +96,7 @@ function addToCart(articleRef) {
                             <div class="card-body">
                                 <div class="d-flex justify-content-between mb-2">
                                     <p class="card-title fw-bold">${element.name}</p>
-                                    <a type="button" class="mx-1 aH my-0 p-0 text-dark fw-bold btn-sm d-flex align-items-end" onclick="deleteItem('${element.id}')">
+                                    <a type="button" class="mx-1 aH my-0 p-0 text-dark fw-bold btn-sm d-flex align-items-end" onclick="deleteArticle('${element.id}')">
                                         <i class="bi bi-trash3"></i>
                                     </a>
                                 </div>
@@ -161,13 +133,6 @@ function getItemIndex(array, article) {
 }
 
 
-
-function register() {
-    mainView.style.display = 'none';
-    landingPage.style.display = 'none';
-    registerYourself.style.display = "block";
-}
-
 function showClothes() {
     let mainView = document.getElementById('mainView');
     let landingPage = document.getElementById('landingPage')
@@ -177,12 +142,12 @@ function showClothes() {
     registerYourself.style.display = "none";
 }
 
-function deleteItem(element) {
-    let card = document.getElementById(element)
-    card.remove()
-    myCartArray.splice(card, 1)
-    panierCount--
-    panier.innerHTML = "+ " + panierCount
+///////////////////////////////////////////////////////////
+// fonctions pour le formulaire
+function register() {
+    mainView.style.display = 'none';
+    landingPage.style.display = 'none';
+    registerYourself.style.display = "block";
 }
 
 function validForm() {
@@ -244,31 +209,12 @@ function cleanError(id) {
     let background = document.getElementById(id)
     background.style.backgroundColor = ""
 }
+// fonctions pour le formulaire
+///////////////////////////////////////////////////////////
 
-function trierArticles(filter) {
-    allArticlesArray.forEach(element => {
-        element.category.forEach(filterCategories => {
-            if (filterCategories != "robe" && filter == "robe") {
-                return;
-            } else if (filterCategories != "blouse" && filter == "blouse") {
-                return;
-            } else if (filterCategories != "tshirt" && filter == "tshirt") {
-                return;
-            } else if (filterCategories != "debardeur" && filter == "debardeur") {
-                return;
-            } else if (filterCategories != "bas" && filter == "bas") {
-                return;
-            } else if (filterCategories != "ensemble" && filter == "ensemble") {
-                return;
-            } else if (filterCategories != "combinaison" && filter == "combinaison") {
-                return;
-            }
-            filterCards(element);
-        })
-    });
-}
+function trierArticle() {
 
-function valider() {
+    // On cible les checkbox à l'aide de leurs id respectifs
     let robe = document.getElementById("robe")
     let blouse = document.getElementById("blouse")
     let tshirt = document.getElementById("tshirt")
@@ -277,55 +223,60 @@ function valider() {
     let ensemble = document.getElementById("ensemble")
     let combinaison = document.getElementById("combinaison")
 
-    let choice = false
-    let showAll = true
+    let choicesArray = [] // tableau vide qui va contenir le ou les choix
 
+    // Nous controllons si les filtres respectifs sont cochés, si oui nous poussons le choix dans un tableau
+    // Sinon, on l'efface dans le tableau
+    // Nous enchaînons donc les if : à factoriser par la suite
     if (robe.checked == true) {
-        choice = "robe"
-        showAll = false
-
+        choicesArray.push('robe')
+    } else if (choicesArray.indexOf('robe') > 0) {
+        // On recupère l'index et on le supprime du tableau à l'aide d'un splice
+        choicesArray.splice(choicesArray.indexOf('robe'), 1)
     }
+
     if (blouse.checked == true) {
-        choice = "blouse"
-        showAll = false
+        choicesArray.push('blouse')
+    } else if (choicesArray.indexOf('blouse') > 0) {
+        choicesArray.splice(choicesArray.indexOf('blouse'), 1)
     }
+
     if (tshirt.checked == true) {
-        choice = "tshirt"
-        showAll = false
+        choicesArray.push('tshirt')
+    } else if (choicesArray.indexOf('tshirt') > 0) {
+        choicesArray.splice(choicesArray.indexOf('tshirt'), 1)
     }
+
     if (debardeur.checked == true) {
-        choice = "debardeur"
-        showAll = false
+        choicesArray.push('debardeur')
+    } else if (choicesArray.indexOf('debardeur') > 0) {
+        choicesArray.splice(choicesArray.indexOf('debardeur'), 1)
     }
+
     if (bas.checked == true) {
-        choice = "bas"
-        showAll = false
+        choicesArray.push('bas')
+    } else if (choicesArray.indexOf('bas') > 0) {
+        choicesArray.splice(choicesArray.indexOf('bas'), 1)
     }
+
     if (ensemble.checked == true) {
-        choice = "ensemble"
-        showAll = false
+        choicesArray.push('ensemble')
+    } else if (choicesArray.indexOf('ensemble') > 0) {
+        choicesArray.splice(choicesArray.indexOf('ensemble'), 1)
     }
+
     if (combinaison.checked == true) {
-        choice = "combinaison"
-        showAll = false
+        choicesArray.push('combinaison')
+    } else if (choicesArray.indexOf('combinaison') > 0) {
+        choicesArray.splice(choicesArray.indexOf('combinaison'), 1)
     }
 
-    fashion.innerHTML = ""
-    allArticlesArray.forEach(element => {
-        show = true
+    console.log(choicesArray)
 
-        if (showAll == false) {
-            show = false
-            element.category.forEach(filterCategories => {
-                if (filterCategories == choice) {
-                    show = true
-                }
-            })
-        }
+    allArticlesArray.forEach((value, index) => {
+        console.log(value.category)
+    })
 
-        if (show) {
-            createCard(element)
-        }
-    });
+
 
 }

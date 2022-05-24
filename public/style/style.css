@@ -14,7 +14,7 @@ body {
     background-color: grey;
 }
 
-.smoll-text {
+.small-text {
     font-size: .8em;
     font-weight: bold;
     background-color: rgb(230, 230, 230);
@@ -24,6 +24,7 @@ body {
     width: 3rem;
     height: 2rem;
 }
+
 .aH {
     height: 1rem;
 }
@@ -32,41 +33,42 @@ body {
     height: 4rem;
 }
 
-.promo{
+.promo {
     background-color: rgb(210, 47, 210);
     color: white;
 }
-.code{
+
+.code {
     font-size: 0.8rem;
     color: white;
 }
-.gras{
+
+.gras {
     font-size: 3rem;
     font-weight: 600;
 }
 
-.logo img{
+.logo img {
     width: 3rem;
     height: auto;
 }
 
-.pieds{
-    font-size: 0.9rem;   
+.pieds {
+    font-size: 0.9rem;
 }
 
-footer{
+footer {
     width: 100%;
 }
 
-.displaynone{
+.displaynone {
     display: none;
 }
 
 @media screen and (min-width:600px) {
-    .card{
+    .card {
         max-height: 37rem;
     }
-    
 }
 
 .valid {
