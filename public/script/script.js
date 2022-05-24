@@ -1,3 +1,4 @@
+// Déclaration des variables en amont 
 let fashion = document.getElementById('fashion')
 let panier = document.getElementById('panier')
 let vosArticles = document.getElementById('vosArticles')
@@ -8,67 +9,92 @@ let emailAddress = document.getElementById("emailAddress")
 let submit = document.getElementById("submit")
 let confirmPassword = document.getElementById("confirmPassword")
 let page = document.getElementById("page")
+
 let myCartArray = []
-let allArticlesArray = []
+let allArticlesArray = [] // va contenir tous les éléments du json
 let panierCount = 0
 let countCard = 0
 
-fetch('dress.json')
+
+// Fetch permettant de recupérer les données du json
+fetch('public/data/dress.json')
     .then(response => response.json())
     .then(data => {
-        let count = 0
-        let dress = data.results
-        dress.forEach(element => {
-            allArticlesArray.push(element)
-            fashion.innerHTML += `
+        // utilisation d'une boucle 'for in' pour récuperer la valeur de l'index de chaque élément
+        for (let index in data.results) {
+            // nous poussons les éléments dans un tableau pour le manipuler par la suite
+            allArticlesArray.push(data.results[index])
+            // utilisation de insertAdjacentHTML pour ne pas perdre les events 
+            fashion.insertAdjacentHTML('beforeend', `
                 <div class="card my-2 col-lg-3 col-10 mx-2" >
-                    <div id="carousel-${element.id}" class="carousel carousel-dark slide" data-bs-ride="carousel" >
+                    <div id="carousel-${data.results[index].id}" class="carousel carousel-dark slide" data-bs-ride="carousel" >
                         <div class="carousel-inner">
                             <div class="carousel-item active" data-bs-interval="10000">
-                            <img style="width:100%" src="img/${element.imgs[0]}" alt="vue vêtement de face">
+                            <img style="width:100%" src="public/img/${data.results[index].imgs[0]}" alt="vue vêtement de face">
                             </div>
                             <div class="carousel-item" data-bs-interval="2000">
-                            <img style="width:100%" src="img/${element.imgs[1]}" alt="vue vêtement de dos">
+                            <img style="width:100%" src="public/img/${data.results[index].imgs[1]}" alt="vue vêtement de dos">
                             </div>
                         </div>
-                        <button class="carousel-control-prev" type="button" data-bs-target="#carousel-${element.id}" data-bs-slide="prev">
+                        <button class="carousel-control-prev" type="button" data-bs-target="#carousel-${data.results[index].id}" data-bs-slide="prev">
                             <span class="carousel-control-prev-icon" aria-hidden="true"></span>
                             <span class="visually-hidden">Previous</span>
                         </button>
-                        <button class="carousel-control-next" type="button" data-bs-target="#carousel-${element.id}" data-bs-slide="next">
+                        <button class="carousel-control-next" type="button" data-bs-target="#carousel-${data.results[index].id}" data-bs-slide="next">
                             <span class="carousel-control-next-icon" aria-hidden="true"></span>
                             <span class="visually-hidden">Next</span>
                         </button>
                     </div>
                     <div class="card-body">
-                        <p class="txtSize">${element.name}</p>
+                        <p class="txtSize">${data.results[index].name}</p>
                         <div class="d-flex  justify-content-between align-items-center ">
-                            <div class="fw-bold">${element.price}€</div>
-                            <button id="${element.id}-btn" class="btn p-2 smoll-text" onclick="addToCart(${count})">Ajouter au panier</button>
+                            <div class="fw-bold">${data.results[index].price}€</div>
+                            <button id="${data.results[index].id}-btn" class="btn p-2 smoll-text" onclick="addToCart(${index})">Ajouter au panier</button>
                         </div>
                     </div>
                 </div>
-            `
-            count++
-        });
-        console.log(allArticlesArray);
-    })
+            `)
+        } // de la boucle for in
+    }) // fin du then data
 
-function addToCart(element) {
-    panierCount++
-    panier.innerHTML = "+ " + panierCount
-    if (checkItem(myCartArray, 'article' + element) == true) {} else {
-        myCartArray.push(allArticlesArray[element])
+
+// la fonction va remplir un tableau myCartArray contenent toutes les propriétés de l'article
+function addToCart(indexArticle) {
+
+    console.log(myCartArray)
+
+
+    // nous allons utiliser notre fonction getItemIndex() pour recupérer l'index si présent sinon false si absent du tableau
+
+    let index = getItemIndex(myCartArray, 'article' + indexArticle)
+
+    if (index === false) {
+        // si absent, on pousse l'item dans le tableau
+        myCartArray.push(allArticlesArray[indexArticle])
+    } else {
+        // sinon nous augmentons la quantité de l'article en le ciblant à l'aide de l'index
+        myCartArray[index].quantity++
     }
-    // console.log(sousTotalClacul(myCartArray));
-    // console.log(myCartArray);
+
+
+
+
+
+
+
+
+    // Ca permet de vider tous les éléments dans la modal panier
     vosArticles.innerHTML = '';
+
+
+    // NE PAS TOUCHER A CETTE BOUCLE CAR ELLE NE FAIT QUE AFFICHER LE TABLEAU "myCartArray"
+    // boucle permettant de remplir le panier en fonction de notre tableau myCartArray
     myCartArray.forEach(element => {
-        vosArticles.innerHTML += `
-                <div class="card mt-1" id="card${countCard}" >
+        vosArticles.insertAdjacentHTML('beforeend', `
+                <div class="card mt-1" id="card" >
                     <div class="row g-0">
                         <div class="col-lg-2 col-2">
-                            <img  style="width:100%" src="img/${element.imgs[0]}" alt="vêtement dans votre panier">
+                            <img  style="width:100%" src="public/img/${element.imgs[0]}" alt="vêtement dans votre panier">
                         </div>
                         <div class="col-lg-10 col-10">
                             <div class="card-body">
@@ -88,21 +114,10 @@ function addToCart(element) {
                         </div>
                     </div>
                 </div>
-            `;
-        countCard++
-    });
-    total()
-}
+            `)
 
-function total() {
-    let sophie = 0
-    let allSoustotal = document.querySelectorAll("[data-soustotal]")
-    allSoustotal.forEach(element => {
-        sophie += parseFloat(element.innerHTML)
-    });
-    let totalDiv = document.getElementById('totalDiv')
-    totalDiv.innerHTML = "Total : " + sophie + '€'
-    console.log(sophie);
+    }) // FIN DE BOUCLE 
+
 }
 
 function sousTotalClacul(array) {
@@ -111,16 +126,25 @@ function sousTotalClacul(array) {
     });
 }
 
-function checkItem(array, item) {
-    let sophie = false;
-    array.forEach(element => {
-        if (element.id == item) {
-            element.quantity++
-            sophie = true;
+
+
+// Fonction permettant de rechercher un élément dans un tableau : return l'index de l'élément s'il trouve, sinon return false
+function getItemIndex(array, article) {
+    // on détermine une variable nous permettant de connaitre si oui ou non l'item est present dans le tableau
+    let inArrayIndex = false;
+    // on parcourt le tableau à l'aide d'une boucle for pour retrouver l'id de l'article
+    array.forEach((value, index) => {
+        if (value.id == article) {
+            // si présent on passe la variable à true
+            inArrayIndex = index
         }
-    });
-    return sophie;
+    })
+    // retourne la valeur de la variable
+    return inArrayIndex;
 }
+
+
+
 
 function register() {
     mainView.style.display = 'none';
@@ -296,10 +320,10 @@ function filterCards(element) {
         <div id="carousel-${element.id}" class="carousel carousel-dark slide" data-bs-ride="carousel" >
             <div class="carousel-inner">
                 <div class="carousel-item active" data-bs-interval="10000">
-                <img style="width:100%" src="img/${element.imgs[0]}" alt="vue vêtement de face">
+                <img style="width:100%" src="public/img/${element.imgs[0]}" alt="vue vêtement de face">
                 </div>
                 <div class="carousel-item" data-bs-interval="2000">
-                <img style="width:100%" src="img/${element.imgs[1]}" alt="vue vêtement de dos">
+                <img style="width:100%" src="public/img/${element.imgs[1]}" alt="vue vêtement de dos">
                 </div>
             </div>
             <button class="carousel-control-prev" type="button" data-bs-target="#carousel-${element.id}" data-bs-slide="prev">
