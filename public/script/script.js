@@ -81,7 +81,7 @@ function addToCart(articleRef) {
     }
 
     // Ca permet de vider tous les éléments dans la modal panier
-    vosArticles.innerHTML = '';
+    vosArticles.innerHTML = ''
 
     // NE PAS TOUCHER A CETTE BOUCLE CAR ELLE NE FAIT QUE AFFICHER LE TABLEAU "myCartArray"
     // boucle permettant de remplir le panier en fonction de notre tableau myCartArray
@@ -113,6 +113,7 @@ function addToCart(articleRef) {
             `)
 
     }) // FIN DE BOUCLE 
+    // NE PAS TOUCHER A CETTE BOUCLE
 
 }
 
@@ -212,6 +213,7 @@ function cleanError(id) {
 // fonctions pour le formulaire
 ///////////////////////////////////////////////////////////
 
+// fonction permettant de filtrer les éléments que nous souhaitons voir afficher
 function trierArticle() {
 
     // On cible les checkbox à l'aide de leurs id respectifs
@@ -271,12 +273,22 @@ function trierArticle() {
         choicesArray.splice(choicesArray.indexOf('combinaison'), 1)
     }
 
-    console.log(choicesArray)
+    // Nous effacons les éléments présent
+    fashion.innerHTML = ''
 
-    allArticlesArray.forEach((value, index) => {
-        console.log(value.category)
+    allArticlesArray.forEach(article => {
+        // si le tableau de choix est vide alors nous affichons tout, sinon ...
+        if (choicesArray.length < 1) {
+            createCard(article)
+        } else {
+            // nous allons parcourir les elements de categorie pour afficher les choix du filtre
+            article.category.forEach(category => {
+                // si nous trouvons la catégory choisie, nous créons la carte à l'aide de la fonction
+                if (choicesArray.indexOf(category) >= 0) {
+                    createCard(article)
+                    return // pour sortir de la réitération
+                }
+            })
+        }
     })
-
-
-
-}
+} 
