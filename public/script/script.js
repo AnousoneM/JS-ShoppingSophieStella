@@ -18,7 +18,7 @@ let panierCount = 0 // va être le compteur du panier
 // fonction permettant de créer une card à l'aide d'un objet contenant des infos : img, prix, etc ...
 function createCard(myObject) {
     fashion.insertAdjacentHTML('beforeend', `
-    <div class="card my-2 col-lg-3 col-10 mx-2" id="${myObject.id}">
+    <div class="card my-2 col-lg-3 col-10 mx-2">
         <div id="carousel-${myObject.id}" class="carousel carousel-dark slide" data-bs-ride="carousel" >
             <div class="carousel-inner">
                 <div class="carousel-item active" data-bs-interval="10000">
@@ -46,7 +46,8 @@ function createCard(myObject) {
         </div>
     </div>
     `)
-};
+}
+
 
 // fetch permettant de recupérer les données du json
 fetch('public/data/dress.json')
@@ -87,7 +88,7 @@ function addToCart(articleRef) {
     // boucle permettant de remplir le panier en fonction de notre tableau myCartArray
     myCartArray.forEach(element => {
         vosArticles.insertAdjacentHTML('beforeend', `
-                <div class="card mt-1" id="card" id="${element.id}">
+                <div class="card mt-1" id="${element.id}">
                     <div class="row g-0">
                         <div class="col-lg-2 col-2">
                             <img  style="width:100%" src="public/img/${element.imgs[0]}" alt="vêtement dans votre panier">
@@ -96,7 +97,7 @@ function addToCart(articleRef) {
                             <div class="card-body">
                                 <div class="d-flex justify-content-between mb-2">
                                     <p class="card-title fw-bold">${element.name}</p>
-                                    <a type="button" class="mx-1 aH my-0 p-0 text-dark fw-bold btn-sm d-flex align-items-end" onclick="deleteArticle('${element.id}')">
+                                    <a type="button" class="mx-1 aH my-0 p-0 text-dark fw-bold btn-sm d-flex align-items-end" onclick="removeToCart('${element.id}')">
                                         <i class="bi bi-trash3"></i>
                                     </a>
                                 </div>
@@ -115,6 +116,19 @@ function addToCart(articleRef) {
     }) // FIN DE BOUCLE 
     // NE PAS TOUCHER A CETTE BOUCLE
 
+}
+
+
+// Fonction permettant de supprimer l'article du panier
+function removeToCart(articleRef) {
+    // nous utilisons la fonction pour rechercher l'index de l'article pour le supprimer par la suite
+    let indexInCartArray = getItemIndex(myCartArray, articleRef)
+    // puis nous supprimons l'article dans le cart array
+    myCartArray.splice(indexInCartArray, 1)
+
+    // Il nous reste plus que de le supprimer dans notre modal à l'aide de la fonction remove()
+    let articleToRemove = document.getElementById(articleRef)
+    articleToRemove.remove()
 }
 
 
@@ -150,6 +164,7 @@ function register() {
     landingPage.style.display = 'none';
     registerYourself.style.display = "block";
 }
+
 
 function validForm() {
     if (surname.value == "") {
@@ -204,6 +219,7 @@ function validForm() {
     }
 }
 
+
 function cleanError(id) {
     let errormessage = document.getElementById("error" + id)
     errormessage.innerHTML = ""
@@ -212,6 +228,7 @@ function cleanError(id) {
 }
 // fonctions pour le formulaire
 ///////////////////////////////////////////////////////////
+
 
 // fonction permettant de filtrer les éléments que nous souhaitons voir afficher
 function trierArticle() {
@@ -291,4 +308,5 @@ function trierArticle() {
             })
         }
     })
-} 
+}
+
