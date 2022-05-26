@@ -76,9 +76,11 @@ function addToCart(articleRef) {
         // on récupère l'indexArticle à l'aide de notre fonction
         let indexArticle = getItemIndex(allArticlesArray, articleRef)
         myCartArray.push(allArticlesArray[indexArticle])
+        calculSousTotal(articleRef)
     } else {
         // sinon nous augmentons la quantité de l'article en le ciblant à l'aide de l'index
         myCartArray[index].quantity++
+        calculSousTotal(articleRef)
     }
 
     // Ca permet de vider tous les éléments dans la modal panier
@@ -129,6 +131,8 @@ function removeToCart(articleRef) {
     // Il nous reste plus que de le supprimer dans notre modal à l'aide de la fonction remove()
     let articleToRemove = document.getElementById(articleRef)
     articleToRemove.remove()
+
+    calculTotal()
 }
 
 
@@ -310,3 +314,20 @@ function trierArticle() {
     })
 }
 
+// fonction qui permet de faire le sous total dans le panier selon la ref renseigné 
+function calculSousTotal(articleRef){
+    // nous recherchons l'index du l'article afin de calculer le sous total
+    let indexInArray = getItemIndex(myCartArray, articleRef)
+    myCartArray[indexInArray].priceByQuantity = +myCartArray[indexInArray].quantity * +myCartArray[indexInArray].price
+    calculTotal()
+}
+
+// fonction qui permet de faire le total du panier en fonction des sous totaux
+function calculTotal(){
+    let totalDiv = document.getElementById('totalDiv')
+    let total = 0
+    myCartArray.forEach(article => {
+        total += +article.priceByQuantity
+    })
+    totalDiv.innerText = `Total : ${total}€`
+}
