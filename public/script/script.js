@@ -106,8 +106,8 @@ function addToCart(articleRef) {
                                 <div class="d-flex justify-content-evenly">
                                     <p class="mx-1 card-title">ref : ${element.id}</p>
                                     <p class="mx-1 card-text">${element.price}€</p>
-                                    <input id="nb${element.id}" type="number" class="mx-1 p-0 taille" min="1" value="${element.quantity}">
-                                    <p class="mx-1 card-text" data-soustotal id="priceAll${element.id}">${element.priceByQuantity}€</p>
+                                    <input id="input-${element.id}"type="number" class="mx-1 p-0 taille" min="1" value="${element.quantity}" onchange="changeQuantity('${element.id}')">
+                                    <p class="mx-1 card-text" data-soustotal id="priceByQuantity-${element.id}">${element.priceByQuantity}€</p>
                                 </div>
                             </div>
                         </div>
@@ -125,6 +125,8 @@ function addToCart(articleRef) {
 function removeToCart(articleRef) {
     // nous utilisons la fonction pour rechercher l'index de l'article pour le supprimer par la suite
     let indexInCartArray = getItemIndex(myCartArray, articleRef)
+    // Nous passons la quantity de l'article à 1 pour ne pas garder l'historique des quantités
+    myCartArray[indexInCartArray].quantity = 1
     // puis nous supprimons l'article dans le cart array
     myCartArray.splice(indexInCartArray, 1)
 
@@ -132,6 +134,7 @@ function removeToCart(articleRef) {
     let articleToRemove = document.getElementById(articleRef)
     articleToRemove.remove()
 
+    calculTotalItem()
     calculTotal()
 }
 
@@ -315,19 +318,45 @@ function trierArticle() {
 }
 
 // fonction qui permet de faire le sous total dans le panier selon la ref renseigné 
-function calculSousTotal(articleRef){
+function calculSousTotal(articleRef) {
     // nous recherchons l'index du l'article afin de calculer le sous total
     let indexInArray = getItemIndex(myCartArray, articleRef)
     myCartArray[indexInArray].priceByQuantity = +myCartArray[indexInArray].quantity * +myCartArray[indexInArray].price
+    calculTotalItem()
     calculTotal()
 }
 
 // fonction qui permet de faire le total du panier en fonction des sous totaux
-function calculTotal(){
+function calculTotal() {
     let totalDiv = document.getElementById('totalDiv')
     let total = 0
     myCartArray.forEach(article => {
         total += +article.priceByQuantity
     })
+    // Nous écrivons le total dans le panier dans la div correspondante
     totalDiv.innerText = `Total : ${total}€`
+}
+
+// fonction permettant de calculer le total 
+function calculTotalItem() {
+    let totalArticle = 0
+    let totalArticlePanier = document.getElementById('totalArticlePanier')
+    myCartArray.forEach(article => {
+        totalArticle += +article.quantity
+    })
+    // Nous écrivons le résultat dans la pastille rouge
+    totalArticlePanier.innerText = totalArticle
+}
+
+function changeQuantity(articleRef) {
+    let input = document.getElementById('input-' + articleRef)
+    let indexInArray = getItemIndex(myCartArray, articleRef)
+    // Nous récupérons la valeur de l'input suite au changement et nous modifions la valeur quantity de l'objet dans la panier
+    myCartArray[indexInArray].quantity = +input.value
+    // Nous effectuons le sous calcul dans le tableau du panier
+    calculSousTotal(articleRef)
+    // Enfin nous affichons le sous total directement dans le panier pour éviter de relancer l'écriture du panier en entier
+    let priceByQuantity = document.getElementById('priceByQuantity-' + articleRef)
+    priceByQuantity.innerText = myCartArray[indexInArray].priceByQuantity + '€'
+
 }
